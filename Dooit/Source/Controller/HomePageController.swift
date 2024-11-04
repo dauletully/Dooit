@@ -7,11 +7,17 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class HomePageController: UIViewController {
+
+    var homePageView = HomePageView()
+
+    override func loadView() {
+        view = homePageView
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        
     }
 
 
