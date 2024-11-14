@@ -7,12 +7,21 @@
 
 import UIKit
 
-class ListController: UIViewController {
+class ListPageController: UIViewController {
 
+    private let listPageView = ListPageView()
+    private let homeController = HomePageController()
+    public var ListInfo: TaskList?
+
+    override func loadView() {
+        view = listPageView
+
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Do any additional setup after loading the view.
+        view.backgroundColor = .white
+        
     }
     
 

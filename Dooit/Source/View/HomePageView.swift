@@ -7,7 +7,15 @@
 
 import UIKit
 import SnapKit
+
+protocol MainViewDelegate: AnyObject {
+    func greeting()
+}
+
 class HomePageView: UIView {
+
+    weak var delegate: MainViewDelegate?
+    private lazy var taskList: [TaskList] = []
 
     private lazy var iconApp: UIImageView = {
         let imageView = UIImageView()
@@ -59,6 +67,15 @@ class HomePageView: UIView {
         return label
     }()
 
+    private lazy var homeTableView: UITableView = {
+        let tableView = UITableView()
+        tableView.register(HomeTableViewCell.self, forCellReuseIdentifier: "listCell2")
+        tableView.delegate = self
+        tableView.dataSource = self
+
+        return tableView
+    }()
+
 //    private lazy var createListButton: UIButton = {
 //        let button = UIButton()
 //        button.setTitle(" New List", for: .normal)
@@ -74,7 +91,7 @@ class HomePageView: UIView {
     private lazy var createButton: UIButton = {
         let button = CustomButtons(frame: CGRect(x: 0, y: 0, width: 125, height: 45))
         button.configure(with: IconTextViewModel(text: "New List", image: UIImage(named: "icon3"), backgroundColor: .black))
-//        button.addTarget(self, action: #selector(buttonPressed), for: .touchUpInside)
+        button.addTarget(self, action: #selector(buttonPressed), for: .touchUpInside)
         return button
     }()
 
@@ -87,13 +104,18 @@ class HomePageView: UIView {
 
     }
 
-
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
     @objc func buttonPressed() {
-        print("Hello")
+        print("Create button pressed")
+        delegate?.greeting()
+
+    }
+
+    public func configure(taskList: [TaskList]) {
+
     }
     private func setupUI() {
         backgroundColor = .white
@@ -101,6 +123,7 @@ class HomePageView: UIView {
         addSubview(searchButton)
         addSubview(iconApp)
         addSubview(changerBetweenList)
+        addSubview(homeTableView)
         addSubview(defaultImage)
         addSubview(defaultLabel)
         addSubview(createButton)
@@ -124,14 +147,20 @@ class HomePageView: UIView {
             make.right.left.equalToSuperview().offset(24).inset(24)
             make.height.equalTo(47)
         }
+        homeTableView.snp.makeConstraints { make in
+            make.top.equalTo(changerBetweenList.snp.bottom).offset(28)
+            make.centerX.equalToSuperview()
+            make.left.right.equalToSuperview().offset(23).inset(24)
+        }
         defaultImage.snp.makeConstraints { make in
-            make.top.equalTo(changerBetweenList.snp.bottom).offset(150)
+            make.top.equalTo(homeTableView.snp.bottom).offset(150)
             make.right.left.equalToSuperview()
         }
         defaultLabel.snp.makeConstraints { make in
             make.top.equalTo(defaultImage.snp.bottom).offset(100)
             make.centerX.equalToSuperview()
         }
+
         createButton.snp.makeConstraints { make in
             make.top.equalTo(defaultLabel.snp.bottom).offset(28)
             make.centerX.equalToSuperview()
@@ -140,4 +169,30 @@ class HomePageView: UIView {
         }
 
     }
+}
+
+extension HomePageView: UITableViewDelegate, UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        taskList.count
+    }
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "listCell2", for: indexPath) as? HomeTableViewCell else {return UITableViewCell()}
+
+        cell.configure(nameTitle: taskList[indexPath.row].title ?? "")
+
+        return cell
+    }
+
+//    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+//        <#code#>
+//    }
+//
+//    func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
+//        <#code#>
+//    }
+//    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+//        <#code#>
+//    }
+
 }

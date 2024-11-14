@@ -17,9 +17,19 @@ class HomePageController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        homePageView.delegate = self
+        navigationController?.navigationBar.prefersLargeTitles = true
+
+    }
+    public func updateData() {
         
     }
+}
 
-
+extension HomePageController: MainViewDelegate {
+    func greeting() {
+        let vc = ListPageController()
+        navigationController?.pushViewController(vc, animated: true)
+    }
 }
 
