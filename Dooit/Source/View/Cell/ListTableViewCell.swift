@@ -8,6 +8,7 @@
 import UIKit
 import SnapKit
 
+
 class ListTableViewCell: UITableViewCell {
 
     private lazy var checkButton: UIButton = {
@@ -18,7 +19,7 @@ class ListTableViewCell: UITableViewCell {
         return button
     }()
 
-    private lazy var noteLabel: UITextField = {
+    public lazy var noteLabel: UITextField = {
         let textField = UITextField()
         textField.placeholder = "Write here"
         textField.translatesAutoresizingMaskIntoConstraints = false
@@ -32,7 +33,6 @@ class ListTableViewCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupUI()
         constraints()
-        print(noteLabel.text!)
     }
 
 
@@ -41,7 +41,7 @@ class ListTableViewCell: UITableViewCell {
     }
     
     @objc private func check(_ sender: UIButton) {
-        if sender.currentImage == UIImage(named: "unChecked") {
+        if sender.currentImage == UIImage(named: "unChecked") && noteLabel.text != ""{
             checkButton.setImage(.checked, for: .normal)
             updateCompletedStyleText(isComleted: true)
         } else {
@@ -92,8 +92,13 @@ class ListTableViewCell: UITableViewCell {
             make.centerY.equalToSuperview()
         }
     }
+    
     func configure(text: String) {
-        self.noteLabel.text = text
-
+        if text.isEmpty {
+            self.noteLabel.placeholder = "Write here"
+        } else {
+            self.noteLabel.text = text
+        }
     }
+
 }

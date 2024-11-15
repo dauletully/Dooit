@@ -21,18 +21,18 @@ class ListPageController: UIViewController {
         super.viewDidLoad()
 
         view.backgroundColor = .white
-        
-    }
-    
+        listPageView.addNavBarButton(to: self.navigationItem, title: "save")
+        listPageView.onSaveButtonTapped = {[weak self] in
+            self?.handleSaveButtonTapped()
+        }
 
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
     }
-    */
+    private func handleSaveButtonTapped() {
+            print("Save button tapped!")
+           
+        }
+
+
+
 
 }
