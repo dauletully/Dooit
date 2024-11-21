@@ -10,6 +10,7 @@ import SnapKit
 
 protocol MainViewDelegate: AnyObject {
     func greeting()
+    func taskGreeting(note: TaskList)
 }
 
 class HomePageView: UIView {
@@ -72,21 +73,10 @@ class HomePageView: UIView {
         tableView.register(HomeTableViewCell.self, forCellReuseIdentifier: "listCell2")
         tableView.delegate = self
         tableView.dataSource = self
+        tableView.rowHeight = 86
 
         return tableView
     }()
-
-//    private lazy var createListButton: UIButton = {
-//        let button = UIButton()
-//        button.setTitle(" New List", for: .normal)
-//        button.setImage(.icon3, for: .normal)
-//        button.titleLabel?.font = UIFont.systemFont(ofSize: 15, weight: .medium)
-//        button.backgroundColor = .black
-//        button.titleLabel?.textColor = .white
-//        button.layer.cornerRadius = 9
-//
-//        return button
-//    }()
 
     private lazy var createButton: UIButton = {
         let button = CustomButtons(frame: CGRect(x: 0, y: 0, width: 125, height: 45))
@@ -95,10 +85,9 @@ class HomePageView: UIView {
         return button
     }()
 
-
-
     override init(frame: CGRect) {
         super.init(frame: frame)
+        reloadData()
         setupUI()
         constraints()
 
@@ -114,18 +103,23 @@ class HomePageView: UIView {
 
     }
 
-    public func configure(taskList: [TaskList]) {
-
+    public func reloadData() {
+        self.taskList = CoreDataManager.shared.fetchData()
+        self.homeTableView.reloadData()
     }
+
     private func setupUI() {
         backgroundColor = .white
         addSubview(labelApp)
         addSubview(searchButton)
         addSubview(iconApp)
         addSubview(changerBetweenList)
-        addSubview(homeTableView)
-        addSubview(defaultImage)
-        addSubview(defaultLabel)
+        if taskList.isEmpty {
+            addSubview(defaultImage)
+            addSubview(defaultLabel)
+        } else {
+            addSubview(homeTableView)
+        }
         addSubview(createButton)
     }
 
@@ -147,26 +141,34 @@ class HomePageView: UIView {
             make.right.left.equalToSuperview().offset(24).inset(24)
             make.height.equalTo(47)
         }
-        homeTableView.snp.makeConstraints { make in
-            make.top.equalTo(changerBetweenList.snp.bottom).offset(28)
-            make.centerX.equalToSuperview()
-            make.left.right.equalToSuperview().offset(23).inset(24)
+        if taskList.isEmpty {
+            defaultImage.snp.makeConstraints { make in
+                make.top.equalTo(changerBetweenList.snp.bottom).offset(150)
+                make.right.left.equalToSuperview()
+            }
+            defaultLabel.snp.makeConstraints { make in
+                make.top.equalTo(defaultImage.snp.bottom).offset(100)
+                make.centerX.equalToSuperview()
+            }
+        } else {
+            homeTableView.snp.makeConstraints { make in
+                make.top.equalTo(changerBetweenList.snp.bottom).offset(28)
+                make.centerX.equalToSuperview()
+                make.left.right.equalToSuperview().offset(23).inset(24)
+                make.bottom.equalToSuperview().inset(100)
+            }
         }
-        defaultImage.snp.makeConstraints { make in
-            make.top.equalTo(homeTableView.snp.bottom).offset(150)
-            make.right.left.equalToSuperview()
-        }
-        defaultLabel.snp.makeConstraints { make in
-            make.top.equalTo(defaultImage.snp.bottom).offset(100)
-            make.centerX.equalToSuperview()
-        }
-
         createButton.snp.makeConstraints { make in
-            make.top.equalTo(defaultLabel.snp.bottom).offset(28)
+            if taskList.isEmpty {
+                make.top.equalTo(defaultLabel.snp.bottom).offset(28)
+            } else {
+                make.top.equalTo(homeTableView.snp.bottom).offset(10)
+            }
             make.centerX.equalToSuperview()
             make.height.equalTo(45)
             make.width.equalTo(125)
         }
+
 
     }
 }
@@ -184,15 +186,25 @@ extension HomePageView: UITableViewDelegate, UITableViewDataSource {
         return cell
     }
 
-//    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-//        <#code#>
-//    }
-//
-//    func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
-//        <#code#>
-//    }
-//    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-//        <#code#>
-//    }
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let currentNote = taskList[indexPath.row]
+        delegate?.taskGreeting(note: currentNote)
+    }
+
+
+    func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
+        return .delete
+    }
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            tableView.beginUpdates()
+            CoreDataManager.shared.deleteData(taskEntity: taskList[indexPath.row])
+            taskList.remove(at: indexPath.row)
+            tableView.deleteRows(at: [indexPath], with: .fade)
+            tableView.endUpdates()
+            tableView.reloadData()
+        }
+        reloadData()
+    }
 
 }

@@ -11,22 +11,33 @@ class HomePageController: UIViewController {
 
     var homePageView = HomePageView()
 
-    override func loadView() {
-        view = homePageView
-    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        DispatchQueue.main.async {
+            self.homePageView.reloadData()
+        }
         homePageView.delegate = self
         navigationController?.navigationBar.prefersLargeTitles = true
-
+        view = homePageView
     }
-    public func updateData() {
-        
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        DispatchQueue.main.async {
+            self.homePageView.reloadData()
+        }
     }
 }
 
 extension HomePageController: MainViewDelegate {
+    func taskGreeting(note: TaskList) {
+        let vc = ListPageController()
+        vc.listInfo = note
+        navigationController?.pushViewController(vc, animated: true)
+        vc.created = true
+    }
+    
     func greeting() {
         let vc = ListPageController()
         navigationController?.pushViewController(vc, animated: true)

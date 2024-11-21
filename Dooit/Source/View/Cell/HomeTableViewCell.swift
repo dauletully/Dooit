@@ -33,6 +33,8 @@ class HomeTableViewCell: UITableViewCell {
     }
     func setupUI() {
         contentView.addSubview(listTitle)
+        contentView.backgroundColor = UIColor(named: "colorCell")
+        contentView.layer.cornerRadius = 16
     }
 
     func constraints() {

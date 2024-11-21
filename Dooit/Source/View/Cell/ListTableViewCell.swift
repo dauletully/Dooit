@@ -41,7 +41,8 @@ class ListTableViewCell: UITableViewCell {
     }
     
     @objc private func check(_ sender: UIButton) {
-        if sender.currentImage == UIImage(named: "unChecked") && noteLabel.text != ""{
+        if sender.currentImage == UIImage(named: "unChecked") && noteLabel.text != ""{ //check is textField not empty
+
             checkButton.setImage(.checked, for: .normal)
             updateCompletedStyleText(isComleted: true)
         } else {
@@ -78,6 +79,7 @@ class ListTableViewCell: UITableViewCell {
     private func setupUI() {
         contentView.addSubview(checkButton)
         contentView.addSubview(noteLabel)
+        contentView.backgroundColor = UIColor(named: "FFF6E7")
     }
 
     private func constraints() {
@@ -93,12 +95,16 @@ class ListTableViewCell: UITableViewCell {
         }
     }
     
-    func configure(text: String) {
+    func configure(text: String) { // Putting text given from storage
         if text.isEmpty {
             self.noteLabel.placeholder = "Write here"
         } else {
             self.noteLabel.text = text
         }
+    }
+
+    func updateDataInList() -> String? {
+        return  noteLabel.text
     }
 
 }

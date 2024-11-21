@@ -9,9 +9,11 @@ import UIKit
 
 class ListPageController: UIViewController {
 
+    
     private let listPageView = ListPageView()
     private let homeController = HomePageController()
-    public var ListInfo: TaskList?
+    public var listInfo: TaskList?
+    public var created = false
 
     override func loadView() {
         view = listPageView
@@ -25,14 +27,13 @@ class ListPageController: UIViewController {
         listPageView.onSaveButtonTapped = {[weak self] in
             self?.handleSaveButtonTapped()
         }
+        setup()
 
     }
     private func handleSaveButtonTapped() {
             print("Save button tapped!")
-           
         }
-
-
-
-
+    private func setup() {
+        listPageView.configurePage(data: listInfo, isAbleToEdit: created)
+    }
 }

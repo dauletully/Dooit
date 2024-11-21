@@ -14,6 +14,8 @@ class ListPageView: UIView {
 
     private var tasks: [String] = [""]
 
+    private var checker = false
+
     var onSaveButtonTapped: (() -> Void)?
 
     private lazy var titleLabel: UITextField = {
@@ -38,6 +40,13 @@ class ListPageView: UIView {
         navigationItem.rightBarButtonItem = navBarButton
     }
 
+    public func configurePage(data: TaskList?, isAbleToEdit: Bool) {
+            currentTask = data
+            self.titleLabel.text = currentTask?.title ?? "Title"
+            self.tasks = currentTask?.desc ?? [""]
+            checker = isAbleToEdit
+    }
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupUI()
@@ -50,6 +59,12 @@ class ListPageView: UIView {
 
     @objc func saveAction() {
         onSaveButtonTapped?()
+        if !checker {
+            CoreDataManager.shared.saveData(currentTitleList: self.titleLabel.text ?? "New note", desc: self.tasks)
+            checker = true
+        } else {
+            CoreDataManager.shared.updateData(NewTitleList: self.titleLabel.text ?? "", desc: self.tasks, currentList: currentTask)
+        }
     }
 
     private func setupUI() {
@@ -76,12 +91,10 @@ class ListPageView: UIView {
 extension ListPageView: UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate{
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        //        currentTask?.desc?.count ?? 2
         tasks.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        //        let model = currentTask?.desc
         let model = tasks
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "listCell", for: indexPath) as? ListTableViewCell else {return UITableViewCell()}
         cell.selectionStyle = .none
@@ -92,6 +105,7 @@ extension ListPageView: UITableViewDelegate, UITableViewDataSource, UITextFieldD
         }
         cell.noteLabel.delegate = self
         cell.noteLabel.tag = indexPath.row
+        
         return cell
     }
 
@@ -101,11 +115,9 @@ extension ListPageView: UITableViewDelegate, UITableViewDataSource, UITextFieldD
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         if textField.text != "" {
             let rowIndex = textField.tag
-
             // Update the note in the model
             tasks[rowIndex] = textField.text ?? ""
-            let note = textField.text
-
+            print(tasks[rowIndex])
             // Add a new empty note and reload table view
             tasks.insert("", at: rowIndex + 1)
             tableView.reloadData()
@@ -120,6 +132,18 @@ extension ListPageView: UITableViewDelegate, UITableViewDataSource, UITextFieldD
             return true
         } else {
             return false
+        }
+    }
+    func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
+        .delete
+    }
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            tableView.beginUpdates()
+            tasks.remove(at: indexPath.row)
+            tableView.deleteRows(at: [indexPath], with: .fade)
+            tableView.endUpdates()
+            tableView.reloadData()
         }
     }
 }

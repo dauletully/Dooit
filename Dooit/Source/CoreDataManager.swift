@@ -13,13 +13,14 @@ class CoreDataManager {
     private init() {}
 
     //MARK: - Saving inputting data to storage
-    func saveData(currentTitleList: String) {
+    func saveData(currentTitleList: String, desc: [String]?) {
         let appDelegate = UIApplication.shared.delegate as? AppDelegate
         guard let context = appDelegate?.persistentContainer.viewContext else {return}
         guard let nameObject = NSEntityDescription.entity(forEntityName: "TaskList", in: context) else {return}
 
         let list = TaskList(entity: nameObject, insertInto: context)
         list.title = currentTitleList
+        list.desc = desc
 
         do {
             try context.save()
@@ -59,4 +60,17 @@ class CoreDataManager {
         return currentData
     }
 
+    //MARK: - Deleting exact data from storage
+    func deleteData(taskEntity: TaskList) {
+        let appDelegate = UIApplication.shared.delegate as? AppDelegate
+        guard let context = appDelegate?.persistentContainer.viewContext else {fatalError()}
+        context.delete(taskEntity)
+
+        do {
+            try context.save()
+            print("Data has been deleted")
+        } catch {
+            print("Error has been occured during deleting: \(error)")
+        }
+    }
 }
