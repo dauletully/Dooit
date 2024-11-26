@@ -16,6 +16,8 @@ class ListPageView: UIView {
 
     private var checker = false
 
+    private let listTypeArray = ["Personal", "Work", "Finance", "Other"]
+
     var onSaveButtonTapped: (() -> Void)?
 
     private lazy var titleLabel: UITextField = {
@@ -33,6 +35,23 @@ class ListPageView: UIView {
         tableView.dataSource = self
         tableView.separatorStyle = .none
         return tableView
+    }()
+
+    private lazy var label: UILabel = {
+        let label = UILabel()
+        label.text = "Choose a label"
+        label.textAlignment = .left
+        label.font = .systemFont(ofSize: 20, weight: .medium)
+
+        return label
+    }()
+
+    private lazy var segmentControl: UISegmentedControl = {
+        let segmentedController = UISegmentedControl(items: listTypeArray)
+        segmentedController.selectedSegmentIndex = 0
+        segmentedController.translatesAutoresizingMaskIntoConstraints = false
+
+        return segmentedController
     }()
 
     public func addNavBarButton(to navigationItem: UINavigationItem, title: String) {
@@ -70,6 +89,8 @@ class ListPageView: UIView {
     private func setupUI() {
         addSubview(titleLabel)
         addSubview(tableView)
+        addSubview(label)
+        addSubview(segmentControl)
     }
 
     private func constraints() {
@@ -81,8 +102,18 @@ class ListPageView: UIView {
         }
         tableView.snp.makeConstraints { make in
             make.top.equalTo(titleLabel.snp.bottom).offset(18)
-            make.bottom.equalToSuperview().inset(158)
+            make.bottom.equalToSuperview().inset(170)
             make.left.right.equalToSuperview().offset(24).inset(24)
+        }
+        label.snp.makeConstraints { make in
+            make.top.equalTo(tableView.snp.bottom).offset(28)
+            make.left.equalToSuperview().offset(24)
+        }
+        segmentControl.snp.makeConstraints { make in
+            make.top.equalTo(label.snp.bottom).offset(29)
+            make.centerX.equalToSuperview()
+            make.width.equalTo(328)
+            make.height.equalTo(28)
         }
     }
 }
